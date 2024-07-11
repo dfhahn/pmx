@@ -91,8 +91,8 @@ if __name__ == '__main__':
                         '--forcefield', 
                         metavar = 'FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
-                        choices = ['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'gaff2'],
+                        default='openff-2.0.0-rc.2.offxml',
+                        choices = ['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'gaff2', 'openff-2.0.0-rc.2.offxml'],
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                         metavar = 'NUMSIM',
                         type=int,
                         default=None,
-                        help='Number of simulations to be started.')
+                        help='Number of simulations to be started. Default results in normal behavior.')
     parser.add_argument('-v', 
                         '--verbose', 
                         type=bool,

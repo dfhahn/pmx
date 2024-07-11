@@ -104,7 +104,7 @@ def writeScript(pwf, edge, wc, state, runtype, run, queueType):
 
         # specify input files
         mdp = os.path.abspath(f'{pwf.mdpPath}/{rt}_{state}.mdp')
-        topology = os.path.abspath(f'{pwf.hybPath}/{edge}/{wc}/top/openff-1.0.0.offxml/topol{run}.top')
+        topology = os.path.abspath(f'{pwf.hybPath}/{edge}/{wc}/top/{pwf.forcefield}/topol{run}.top')
         coord = os.path.abspath(getRunCoord(pwf, rt, run=run, target=pwf.target, edge=edge, wc=wc, state=state))
         # specify output files
         tprfile = f'{rt}{run}.tpr'  # temporary tpr file
@@ -242,7 +242,7 @@ if __name__ == '__main__':
                         '--forcefield',
                         metavar='FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
+                        default='openff-2.0.0-rc.2.offxml',
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',
@@ -269,7 +269,7 @@ if __name__ == '__main__':
                         metavar = 'SIMULATION_TYPE',
                         nargs='+',
                         type=str,
-                        default=['em'],
+                        default='em',
                         choices = ['em', 'eq', 'nvt', 'morphes'],
                         help='The simulation type.')
     parser.add_argument('-q',

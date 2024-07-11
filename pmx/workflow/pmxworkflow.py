@@ -122,7 +122,7 @@ def read_edges( target ):
         return []
 
 # a function to prepare a .top file
-def create_top(fname='topol.top', ff='amber99sb-star-ildn-mut.ff', water='tip3p',
+def create_top(fname='topol.top', ff='amber14sb_OL15.ff', water='tip3p',
                itp=['merged.itp'], mols=[['MOL', 1]],
                destination='', toppaths=[]):
     fp = open(fname, 'w')
@@ -180,6 +180,8 @@ class pmxvariables:
         self.scriptpath = pmx.__path__[0] + '/scripts/ligands/'
         # path to mdp
         self.mdpPath = os.path.abspath(pmx.__path__[0]) + '/data/mdppath/'
+        # path to forcefield files
+        self.ffPath = os.path.abspath(pmx.__path__[0]) + '/data/'
         # forcefield
         self.forcefield = forcefield
         # target

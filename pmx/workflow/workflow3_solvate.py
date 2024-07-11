@@ -37,6 +37,14 @@ def solvateLigand(pwf):
         topology = f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/topol.top'
         pmxworkflow.create_top(fname=topology, itp=['ffMOL.itp', 'merged.itp'])
 
+        #copy force field files
+        forcefield_path = f'{pwf.ffPath}/mutff45/amber14sb_OL15.ff'
+        top_path = f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/amber14sb_OL15.ff'
+        try:
+            shutil.copytree(forcefield_path, top_path)
+        except FileExistsError:
+            pass
+ 
         # create box
         # input
         inp = f'{pwf.hybPath}/{edge}/water/crd/mergedA.pdb'  # input ligand structure
@@ -110,14 +118,17 @@ def addIonsLigand(pwf):
         for i in pwf.replicates:
             ions = f'{pwf.hybPath}/{edge}/water/crd/ions{i}.pdb'  # ion file
             topfile = f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/topol{i}.top'  # top file
-            shutil.copy(topology, topfile)
+            try:
+                shutil.copy(topology, topfile)
+            except FileExistsError:
+                pass
             process = subprocess.Popen(['gmx', 'genion',
                                         '-s', tprfile,
                                         '-p', topfile,
                                         '-conc', str(0.15),
                                         '-neutral',
-                                        '-nname', 'ClJ',
-                                        '-pname', 'NaJ',
+                                        '-nname', 'CL',
+                                        '-pname', 'NA',
                                         '-o', ions],
                                         stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE,
@@ -173,16 +184,35 @@ def combineProteinLigand(pwf):
             continue
  
         # assemble topologies
-        proteinTop = f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/protein.top' # protein topol        
-        cofactors_crystalwaterTop = f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/cofactors_crystalwater.top' # protein topology
+        forcefield_path = f'{pwf.ffPath}/mutff45/amber14sb_OL15.ff'
+        top_path = f'{pwf.protPath}/top/amber14sb_OL15.ff'
+        try:
+            shutil.copytree(forcefield_path, top_path)
+        except FileExistsError:
+            pass
+        PToporig = f'{pwf.protPath}/protein.top'
+        CCToporig = f'{pwf.protPath}/cofactors_crystalwater.top'
+        proteinTop = f'{pwf.protPath}/top/amber14sb_OL15.ff/protein.top' # protein topol        
+        cofactors_crystalwaterTop = f'{pwf.protPath}/top/amber14sb_OL15.ff/cofactors_crystalwater.top' # protein topology
+        try:
+            shutil.copy(PToporig, proteinTop)
+            shutil.copy(CCToporig, cofactors_crystalwaterTop)
+        except FileExistsError:
+            pass
+        # copy itp files
+        for filename in os.listdir(pwf.protPath):
+            if filename.endswith('.itp'):
+                filepath = os.path.join(pwf.protPath, filename)
+                shutil.copy(filepath, top_path)
+
         # output
         complexTop = f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/topol.top'  # complex topology
 
-        if os.path.exists(f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/ffcofactors_crystalwater.itp'):
+        if os.path.exists(f'{pwf.protPath}/top/amber14sb_OL15.ff/ffcofactors_crystalwater.itp'):
             # generate oneff_fuke
             # input
             ff1 = f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/ffMOL.itp'
-            ff2 = f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/ffcofactors_crystalwater.itp'
+            ff2 = f'{pwf.protPath}/top/amber14sb_OL15.ff/ffcofactors_crystalwater.itp'
             # output
             ffout = f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/ffcomplex.itp'
 
@@ -211,7 +241,7 @@ def combineProteinLigand(pwf):
             includes = ['ffMOL.itp', 'merged.itp']
 
         # protein
-        includes += list(filter(lambda x: x.endswith('.itp') and not  x.startswith('ff') and not x.startswidth('posre'), os.listdir(f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/')))
+        includes += list(filter(lambda x: x.endswith('.itp') and not x.startswith('ff') and not x.startswith('tip') and not x.startswith('ions') and not x.startswith('spc') and not x.startswith('posre') and not x.startswith('gbsa') and not x.startswith('forcefield'), os.listdir(f'{pwf.protPath}/top/amber14sb_OL15.ff/')))
 
         # molecules to be included
         molecules = []
@@ -238,9 +268,9 @@ def combineProteinLigand(pwf):
                     continue
                 molecules.append(l.split())
 
-        pmxworkflow.create_top(fname=f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/topol.top', ff='amber99sb-star-ildn-mut.ff', water='tip3p',
+        pmxworkflow.create_top(fname=f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/topol.top', ff='amber14sb_OL15.ff', water='tip3p',
                    itp=includes, mols=molecules,
-                   destination=f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/', toppaths=[f'{pwf.protPath}/top/amber99sb-star-ildn-mut.ff/', f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/', f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/'])
+                   destination=f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/', toppaths=[f'{pwf.protPath}/top/amber14sb_OL15.ff/', f'{pwf.hybPath}/{edge}/water/top/{pwf.forcefield}/', f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/'])
 
 ################################################
 # prepare water boxes for complex simulations  #
@@ -255,6 +285,13 @@ def solvateComplex(pwf):
         os.makedirs(f'{pwf.hybPath}/{edge}/complex/crd/', exist_ok=True)
         # make temporary directory
         os.makedirs(f'{pwf.hybPath}/{edge}/complex/tmp/', exist_ok=True)
+
+        forcefield_path = f'{pwf.protPath}/top/amber14sb_OL15.ff'
+        top_path = f'{pwf.hybPath}/{edge}/complex/top/{pwf.forcefield}/amber14sb_OL15.ff'
+        try:
+            shutil.copytree(forcefield_path, top_path)
+        except FileExistsError:
+            pass
 
         # create box
         # input
@@ -343,8 +380,8 @@ def addIonsComplex(pwf):
                                         '-p', topfile,
                                         '-conc', str(0.15),
                                         '-neutral',
-                                        '-nname', 'ClJ',
-                                        '-pname', 'NaJ',
+                                        '-nname', 'CL',
+                                        '-pname', 'NA',
                                         '-o', ions],
                                        stdin=subprocess.PIPE,
                                        stdout=subprocess.PIPE,
@@ -392,7 +429,7 @@ if __name__ == '__main__':
                         '--forcefield',
                         metavar='FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
+                        default='openff-2.0.0-rc.2.offxml',
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',

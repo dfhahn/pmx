@@ -244,7 +244,7 @@ if __name__ == '__main__':
                         '--forcefield',
                         metavar='FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
+                        default='openff-2.0.0-rc.2.offxml',
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',
@@ -254,7 +254,7 @@ if __name__ == '__main__':
                         help='The path to the data.')
     parser.add_argument('-r',
                         '--replicates',
-                        metavar='QUEUE',
+                        metavar='REPLICATES',
                         nargs='+',
                         type=str,
                         default='1',

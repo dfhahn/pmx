@@ -169,15 +169,15 @@ if __name__ == '__main__':
                         metavar = 'SIMULATION_TYPE',
                         nargs='+',
                         type=str,
-                        default=['em'],
+                        default='em',
                         choices = ['em', 'eq', 'nvt', 'morphes'],
                         help='The simulation type.')
     parser.add_argument('-f', 
                         '--forcefield', 
                         metavar = 'FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
-                        choices = ['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'gaff2'],
+                        default='openff-2.0.0-rc.2.offxml',
+                        choices = ['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'gaff2', 'openff-2.0.0-rc.2.offxml'],
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',

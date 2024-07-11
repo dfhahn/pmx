@@ -3,6 +3,8 @@
 
 """sge.py: Handles SGE queue system commands."""
 
+import os
+import pmx
 
 __author__ = "David Hahn and Vytas Gapsys"
 __copyright__ = "Copyright (c) 2020 Open Force Field Consortium and de Groot Lab"
@@ -15,16 +17,16 @@ __status__ = "Development"
 
 def scriptHeader( fname, jobname, simtime=1, simcpu=4):
     fp = open(fname,'w')
-
+    gmxlibpath = os.path.abspath(pmx.__path__[0]) + 'data/mutff45/'
     jobline = f'#! /usr/bin/bash\n\
 #$ -N {jobname}\n\
 #$ -cwd\n\
 #$ -q all.q\n\
 #$ -j yes\n\
-#$ -l slot_type=gromacs,affinity_group=default\n\n\
+#$ -l slot_type=gromacs\n\n\
 export LD_LIBRARY_PATH=/shared/app/cuda/10.1/toolkit/lib64/:$LD_LIBRARY_PATH\n\n\
-source /home/dhahn3/bin/gromacs-patched/bin/GMXRC\n\n\
-export GMXLIB=/shared/data/gromacs/dhahn3/ffamber/mutff45/\n\n\
+source /usr/local/gromacs/2021/bin/GMXRC\n\n\
+export GMXLIB={gmxlibpath}\n\n\
 mkdir -p $TMPDIR/$JOB_ID/\n\
 cd $TMPDIR/$JOB_ID/\n\n'
     fp.write(jobline)
@@ -69,17 +71,17 @@ def scriptArrayjob(fname, gromppline, simpath, jobname, runtype, run, simtime=4,
     fp = open(fname,'w')
     
     runargs = f'-pme gpu -ntmpi 1 -ntomp {simcpu} -pin on'
-
+    gmxlibpath = os.path.abspath(pmx.__path__[0]) + '/data/mutff45/'
     jobline = f'#! /usr/bin/bash\n\
 #$ -N {jobname}\n\
 #$ -cwd\n\
 #$ -q all.q\n\
 #$ -j yes\n\
 #$ -t 1-80\n\
-#$ -l slot_type=gromacs,affinity_group=default\n\n\
+#$ -l slot_type=gromacs\n\n\
 export LD_LIBRARY_PATH=/shared/app/cuda/10.1/toolkit/lib64/:$LD_LIBRARY_PATH\n\n\
-source /home/dhahn3/bin/gromacs-patched/bin/GMXRC\n\n\
-export GMXLIB=/shared/data/gromacs/dhahn3/ffamber/mutff45/\n\n\
+source /usr/local/gromacs/2021/bin/GMXRC\n\n\
+export GMXLIB={gmxlibpath}\n\n\
 \n\
 WORKDIR=$(pwd)\n\
 mkdir -p $TMPDIR/$JOB_ID/$SGE_TASK_ID\n\

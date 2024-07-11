@@ -107,7 +107,7 @@ def change_atomtypes(itp, suffix):
     itp.atomtypes = newdict
 
 
-def write_ff(atypes, fname, ff='amber99sb'):
+def write_ff(atypes, fname, ff='amber14sb'):
     fp = open(fname, 'w')
     print('[ atomtypes ]', file=fp)
     for atkey in atypes.keys():
@@ -156,7 +156,7 @@ def calculate_parameters(lig, pwf):
 
     # Export GROMACS files.
     pmd_structure.save(f'{pwf.ligPath}/{lig}/top/{pwf.forcefield}/{lig}.top', overwrite=True)
-    pmd_structure.save(f'{pwf.ligPath}/{lig}/top/{pwf.forcefield}/{lig}.gro', overwrite=True, precision=8)
+    pmd_structure.save(f'{pwf.ligPath}/{lig}/top/{pwf.forcefield}/{lig}.gro', overwrite=True, precision=3)
 
     # Create GROMACS ITP file
     itp = pmxff.read_gaff_top(f'{pwf.ligPath}/{lig}/top/{pwf.forcefield}/{lig}.top')
@@ -194,8 +194,8 @@ if __name__ == '__main__':
                         '--forcefield',
                         metavar='FORCEFIELD',
                         type=str,
-                        default='smirnoff99Frosst-1.1.0.offxml',
-#                        choices=['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'openff-1.2.0.offxml', 'gaff2'],
+                        default='openff-2.0.0-rc.2.offxml',
+#                        choices=['smirnoff99Frosst-1.1.0.offxml', 'openff-1.0.0.offxml', 'openff-1.2.0.offxml', 'gaff2', 'openff-2.0.0-rc.2.offxml'],
                         help='The force field used.')
     parser.add_argument('-p',
                         '--path',
